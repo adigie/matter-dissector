@@ -55,13 +55,13 @@ Users should also be aware that the Matter dissector may have bugs that may caus
 
 
 ## Installation
-The current version of the Matter Wireshark plugin only runs on linux and requires Wireshark 3.6 or later.  This version is offered as a standard package on Ubuntu 18 and gLinux.  For older versions of Ubuntu, please see Upgrading Wireshark on Ubuntu below.
+The current version of the Matter Wireshark plugin only runs on linux and requires Wireshark 4.4 or later.
 
 Installing the Wireshark plugin is as simple as copying the shared library file into your local plugins directory:
 
-    mkdir -p ${HOME}/.local/lib/wireshark/plugins/3.6/epan
-    cp matter-dissector.so ${HOME}.local/lib/wireshark/plugins/3.6/epan
-    chmod 700 ${HOME}/.local/lib/wireshark/plugins/3.6/epan/matter-dissector.so
+    mkdir -p ${HOME}/.local/lib/wireshark/plugins/4.4/epan
+    cp matter-dissector.so ${HOME}.local/lib/wireshark/plugins/4.4/epan
+    chmod 700 ${HOME}/.local/lib/wireshark/plugins/4.4/epan/matter-dissector.so
 
 ## Upgrading Wireshark on Ubuntu
 The Wireshark team maintains a PPA for Wireshark releases that have been back-ported to older Ubuntu distros: https://launchpad.net/~wireshark-dev/+archive/ubuntu/stable.
@@ -72,8 +72,16 @@ Users can run the following commands to install/upgrade their Wireshark installa
     sudo apt-get update
     sudo apt-get install wireshark
 
+## Building the Matter Wireshark Plugin in Docker
+```bash
+# build image
+$ docker build . -t matter-dissector:4.4
 
-## Bulding the Matter Wireshark Plugin
+# copy plugin out of image
+$ docker run --rm -u $(stat -c "%u:%g" .) -v $(pwd):/out matter-dissector:4.4
+```
+
+## Building the Matter Wireshark Plugin
 ### Install dependencies 
 
 Install dependencies on Linux:
@@ -88,11 +96,11 @@ Install dependencies on Mac:
 
 Building the Matter Wireshark plugin requires access to a Wireshark source tree that has been built, or at least prepared for building.  This can be accompished as follows:
 
-    sudo apt-get install -y build-essential git cmake flex bison qttools5-dev qttools5-dev-tools libqt5svg5-dev qtmultimedia5-dev libpcap-dev libc-ares-dev libgcrypt20-dev libglib2.0-dev libpcre2-dev libnghttp2-dev libqt5core5a
+    sudo apt-get install -y build-essential git make cmake flex python3 libglib2.0-dev libgcrypt20-dev libc-ares-dev qt6-base-dev qt6-tools-dev qt6-5compat-dev libspeexdsp-dev libssl-dev
 
     git clone https://gitlab.com/wireshark/wireshark.git
     cd wireshark
-    git checkout release-3.6
+    git checkout release-4.4
     mkdir build
     cd build
     cmake ..
@@ -235,20 +243,20 @@ WARNING: Firmware built with the above flag will use the "Stock developer Encryp
 
 #### Filtering Matter messages
 
-To filter a trace to only show Matter messages, enter the following in the green filter entry box: `matter`.
+To filter a trace to only show Matter messages, enter the following in the green filter entry box: `matter_csa`.
 
 NOTE: the current filter assumes port 5540.  If neither node is using port 5540, the messages will not be seen by the filter.
 
 To show all Matter messages and Matter-related mdns, use the following filter:
 
 ```
-matter || dns.qry.name contains matter || dns.resp.name contains matter
+matter_csa || dns.qry.name contains matter || dns.resp.name contains matter
 ```
 
 Outdated filter:
 
 ```
-matter || dns.ptr.domain_name==_matterc._udp.local || dns.ptr.domain_name==_matter._tcp.local
+matter_csa || dns.ptr.domain_name==_matterc._udp.local || dns.ptr.domain_name==_matter._tcp.local
 ```
 
 #### Viewing a Single Matter Exchange
