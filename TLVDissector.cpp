@@ -18,7 +18,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/strutil.h>
+#include <wsutil/str_util.h>
 
 #include <Matter/Protocols/interaction-model/MessageDef.h>
 #include <Matter/Support/CodeUtils.h>
@@ -528,12 +528,10 @@ MATTER_ERROR TLVDissector::AddGenericTLVItem(proto_tree *tree, int hfindex, tvbu
         char *val;
         err = DupString(val);
         SuccessOrExit(err);
-        uint32_t escapedLen = escape_string_len(val);
-        char *escapedVal = (char *)malloc(escapedLen + 1);
-        escape_string(escapedVal, val);
+        char* escapedVal = ws_escape_string(NULL, val, true);
         AppendStringF(strBuf, strBufSize, "%s", escapedVal);
         free(val);
-        free(escapedVal);
+        wmem_free(NULL, escapedVal);
         break;
     }
     case kTLVType_ByteString:

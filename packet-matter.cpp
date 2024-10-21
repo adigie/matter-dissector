@@ -64,12 +64,12 @@ using namespace matter;
 #endif
 
 extern "C" {
-// Targets Wireshark version 3.6
-WS_DLL_PUBLIC const int plugin_want_major = 3;
-WS_DLL_PUBLIC const int plugin_want_minor = 6;
+// Targets Wireshark version 4.4
+WS_DLL_PUBLIC const int plugin_want_major = 4;
+WS_DLL_PUBLIC const int plugin_want_minor = 4;
 
 WS_DLL_PUBLIC const gchar plugin_version[] = PLUGIN_VERSION;
-WS_DLL_PUBLIC const gchar plugin_release[] = "3.6";
+WS_DLL_PUBLIC const gchar plugin_release[] = "4.4";
 WS_DLL_PUBLIC void plugin_register(void);
 }
 
@@ -116,7 +116,7 @@ static int hf_Matter_MsgCntrReuseFrameNum = -1;
 
 static dissector_table_t matter_subdissector_table;
 
-static gboolean pref_ShowNodeIds = true;
+static bool pref_ShowNodeIds = true;
 
 const value_string sessionTypeNames[] = {
     { kMatterSessionType_Unicast, "Unicast" },
@@ -324,7 +324,7 @@ DissectMatter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *dat
     }
 
     // Message Flags
-    msgInfo.msgFlags = tvb_get_guint8(tvb, parsePoint);
+    msgInfo.msgFlags = tvb_get_uint8(tvb, parsePoint);
     msgInfo.msgVersion = (uint8_t)((msgInfo.msgFlags & kMsgHeaderField_MessageVersionMask) >> kMsgHeaderField_MessageVersionShift);
  
     proto_tree_add_item(matter_tree, hf_Matter_MsgFlags, tvb, parsePoint, 1, ENC_LITTLE_ENDIAN);
@@ -342,7 +342,7 @@ DissectMatter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *dat
     parsePoint += 2;
 
     // Security Flags
-    msgInfo.secFlags = tvb_get_guint8(tvb, parsePoint);
+    msgInfo.secFlags = tvb_get_uint8(tvb, parsePoint);
     msgInfo.sessionType = (uint8_t)((msgInfo.secFlags & kMsgHeaderField_EncryptionTypeMask) >> kMsgHeaderField_EncryptionTypeShift);
 
     char sessionTypeDesc[64];
@@ -420,7 +420,7 @@ DissectMatter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *dat
 
         parsePoint = 0;
 
-        msgInfo.exchHeader = tvb_get_guint8(unencMsgTVB, parsePoint);
+        msgInfo.exchHeader = tvb_get_uint8(unencMsgTVB, parsePoint);
         proto_tree_add_item(matter_tree, hf_Matter_ExchangeHeader, unencMsgTVB, parsePoint, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(matter_tree, hf_Matter_VFlag, unencMsgTVB, parsePoint, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(matter_tree, hf_Matter_SXFlag,unencMsgTVB, parsePoint, 1, ENC_LITTLE_ENDIAN);
@@ -429,7 +429,7 @@ DissectMatter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *dat
         proto_tree_add_item(matter_tree, hf_Matter_IFlag, unencMsgTVB, parsePoint, 1, ENC_LITTLE_ENDIAN);
         parsePoint += 1;
 
-        msgInfo.msgType = tvb_get_guint8(unencMsgTVB, parsePoint);
+        msgInfo.msgType = tvb_get_uint8(unencMsgTVB, parsePoint);
         parsePoint += 1;
 
         msgInfo.exchId = tvb_get_letohs(unencMsgTVB, parsePoint);
@@ -555,12 +555,12 @@ DissectMatterTCP(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *
     return tvb_captured_length(tvb);
 }
 
-static gboolean MatterExchangeFilter_IsValid(struct _packet_info *pinfo)
+static bool MatterExchangeFilter_IsValid(struct _packet_info *pinfo, void*)
 {
     return proto_is_frame_protocol(pinfo->layers, "matter") && MatterMessageTracker::FindMessageRecord(pinfo) != NULL;
 }
 
-static gchar* MatterExchangeFilter_BuildFilterString(struct _packet_info *pinfo)
+static gchar* MatterExchangeFilter_BuildFilterString(struct _packet_info *pinfo, void*)
 {
     MatterMessageRecord *msgRec = MatterMessageTracker::FindMessageRecord(pinfo);
 
@@ -716,7 +716,7 @@ proto_register_matter(void)
 
     matter_subdissector_table = register_dissector_table("matter.profile_id", "Matter Profile", proto_matter, FT_UINT32, BASE_HEX);
 
-    register_conversation_filter("matter", "Matter Exchange", MatterExchangeFilter_IsValid, MatterExchangeFilter_BuildFilterString);
+    register_conversation_filter("matter", "Matter Exchange", MatterExchangeFilter_IsValid, MatterExchangeFilter_BuildFilterString, NULL);
 
     module_t *prefs_matter = prefs_register_protocol(proto_matter, NULL);
 

@@ -240,7 +240,7 @@ DeriveCASESessionKey(CASEExchangeRecord *caseExchangeRec, const uint8_t *sharedS
     memset(&keyData, 0, sizeof(keyData));
     keyData.keyId = caseExchangeRec->keyId;
     keyData.sessionType = caseExchangeRec->sessionType;
-    keyData.dataEncKey = (char *)sessionKeyData;
+    keyData.dataEncKey = sessionKeyData;
     keyData.dataEncKeyLen = kDataEncKeyLength_AES128CCM;
 
     return MessageEncryptionKeyTable::AddKey(keyData);
@@ -456,19 +456,19 @@ DissectCASEBeginSessionRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     VerifyOrExit(msgInfo.payloadLen > 18, err = MATTER_ERROR_MESSAGE_INCOMPLETE);
 
-    proposedEncType = tvb_get_guint8(tvb, parsePoint) & kCASEHeader_EncryptionTypeMask;
+    proposedEncType = tvb_get_uint8(tvb, parsePoint) & kCASEHeader_EncryptionTypeMask;
     proto_tree_add_item(tree, hf_CASEBeginSessionRequest_ControlHeader, tvb, parsePoint, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_CASEBeginSessionRequest_EncType, tvb, parsePoint, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_CASEBeginSessionRequest_PerformKeyConfirmFlag, tvb, parsePoint, 1, ENC_LITTLE_ENDIAN);
     parsePoint += 1;
 
-    altConfigCount = tvb_get_guint8(tvb, parsePoint);
+    altConfigCount = tvb_get_uint8(tvb, parsePoint);
     parsePoint += 1;
 
-    altCurveCount = tvb_get_guint8(tvb, parsePoint);
+    altCurveCount = tvb_get_uint8(tvb, parsePoint);
     parsePoint += 1;
 
-    ecdhPublicKeyLen = tvb_get_guint8(tvb, parsePoint);
+    ecdhPublicKeyLen = tvb_get_uint8(tvb, parsePoint);
     parsePoint += 1;
 
     certInfoLen = tvb_get_letohs(tvb, parsePoint);
@@ -575,7 +575,7 @@ DissectCASEBeginSessionResponse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     VerifyOrExit(msgInfo.payloadLen > 6, err = MATTER_ERROR_MESSAGE_INCOMPLETE);
 
-    controlHeader = tvb_get_guint8(tvb, parsePoint);
+    controlHeader = tvb_get_uint8(tvb, parsePoint);
 
     switch (controlHeader & kCASEHeader_KeyConfirmHashLengthMask) {
     case kCASEKeyConfirmHashLength_0Bytes:
@@ -595,7 +595,7 @@ DissectCASEBeginSessionResponse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_uint_format_value(tree, hf_CASEBeginSessionResponse_KeyConfirmHashLength, tvb, parsePoint, 1, (controlHeader & kCASEHeader_KeyConfirmHashLengthMask), "%u", keyConfirmHashLen);
     parsePoint += 1;
 
-    ecdhPublicKeyLen = tvb_get_guint8(tvb, parsePoint);
+    ecdhPublicKeyLen = tvb_get_uint8(tvb, parsePoint);
     parsePoint += 1;
 
     certInfoLen = tvb_get_letohs(tvb, parsePoint);

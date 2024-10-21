@@ -30,7 +30,7 @@ WIRESHARK_LDFLAGS =
 
 MATTER_ROOT ?= MatterMinimal
 
-MATTER_CFLAGS = -I$(MATTER_ROOT)/include -DHAVE_MALLOC -DHAVE_FREE
+MATTER_CFLAGS = -I$(MATTER_ROOT)/include -I$(WIRESHARK_SRC_DIR)/include -DHAVE_MALLOC -DHAVE_FREE
 
 ifeq ($(MATTER_ROOT),MatterMinimal)
 MATTER_SRCS =											\
@@ -103,8 +103,8 @@ tests/test-packet-matter-decrypt.exe: tests/test-packet-matter-decrypt.o packet-
 
 
 install : $(PLUGIN_OUT)
-	mkdir -p ~/.local/lib/wireshark/plugins/3.6/epan
-	cp $(PLUGIN_OUT) ~/.local/lib/wireshark/plugins/3.6/epan
+	mkdir -p ~/.local/lib/wireshark/plugins/4.4/epan
+	cp $(PLUGIN_OUT) ~/.local/lib/wireshark/plugins/4.4/epan
 
 test : install
 	WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 $(WIRESHARK_BUILD_DIR)/run/wireshark $(TEST_INPUT)
