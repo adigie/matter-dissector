@@ -708,7 +708,7 @@ proto_register_matter(void)
         &ett_matter
     };
 
-    proto_matter = proto_register_protocol("Matter Message Format", "Matter", "matter");
+    proto_matter = proto_register_protocol("Matter Message Format", "Matter CSA", "matter_csa");
 
     proto_register_field_array(proto_matter, hf, array_length(hf));
 
@@ -716,7 +716,7 @@ proto_register_matter(void)
 
     matter_subdissector_table = register_dissector_table("matter.profile_id", "Matter Profile", proto_matter, FT_UINT32, BASE_HEX);
 
-    register_conversation_filter("matter", "Matter Exchange", MatterExchangeFilter_IsValid, MatterExchangeFilter_BuildFilterString, NULL);
+    register_conversation_filter("matter_csa", "Matter Exchange", MatterExchangeFilter_IsValid, MatterExchangeFilter_BuildFilterString, NULL);
 
     module_t *prefs_matter = prefs_register_protocol(proto_matter, NULL);
 
